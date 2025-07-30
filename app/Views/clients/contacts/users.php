@@ -12,13 +12,6 @@
                 if (isset($can_add_users) && $can_add_users) {
                     echo modal_anchor(get_uri("clients/add_institution_user_modal"), "<i data-feather='plus-circle' class='icon-16'></i> " . app_lang('add_user'), array("class" => "btn btn-primary", "title" => app_lang('add_user')));
                 }
-
-                // Debug info
-                if (isset($debug)) {
-                    echo "<pre>";
-                    print_r($debug);
-                    echo "</pre>";
-                }
                 ?>
             </div>
         </div>

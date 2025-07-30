@@ -1442,12 +1442,6 @@ class Clients extends Security_Controller {
         if ($this->login_user->user_type === "client") {
             $view_data['client_id'] = $this->login_user->client_id;
             
-            // For debugging
-            $view_data['debug'] = array(
-                'is_primary_contact' => $this->login_user->is_primary_contact,
-                'client_permissions' => $this->login_user->client_permissions
-            );
-            
             // Check if the current user can manage institution users
             $view_data['can_add_users'] = ($this->login_user->is_primary_contact == 1) || 
                                          ($this->login_user->client_permissions && 
@@ -2132,13 +2126,34 @@ class Clients extends Security_Controller {
 
         $client_id = $this->login_user->client_id;
         
+        // For debugging
+        $debug = array(
+            'user_type' => $this->login_user->user_type,
+            'client_id' => $client_id,
+            'is_primary_contact' => $this->login_user->is_primary_contact,
+            'client_permissions' => $this->login_user->client_permissions
+        );
+        
+        error_log("Debug info: " . print_r($debug, true));
+        
         // Check if the current user can manage institution users
-        $can_manage = ($this->login_user->is_primary_contact == 1) || 
-                     ($this->login_user->client_permissions && 
-                      (
-                          $this->login_user->client_permissions === "all" || 
-                          strpos($this->login_user->client_permissions, '"can_manage_institution_users":"1"') !== false
-                      ));
+        $can_manage = false;
+        
+        // Check primary contact status
+        if ($this->login_user->is_primary_contact == 1) {
+            $can_manage = true;
+        }
+        
+        // Check client permissions
+        if ($this->login_user->client_permissions) {
+            if ($this->login_user->client_permissions === "all") {
+                $can_manage = true;
+            } else if (strpos($this->login_user->client_permissions, '"can_manage_institution_users":"1"') !== false) {
+                $can_manage = true;
+            }
+        }
+        
+        error_log("Can manage check result: " . ($can_manage ? "true" : "false"));
         
         if (!$can_manage) {
             app_redirect("forbidden");
